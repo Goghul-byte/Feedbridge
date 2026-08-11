@@ -1,0 +1,13 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "feedbridge"
+resolve_s3 = true
+s3_prefix = "feedbridge"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "WhatsAppPhoneNumberId=\"1203004366231124\""
+image_repositories = []
+
+[default.global.parameters]
+region = "ap-south-1"

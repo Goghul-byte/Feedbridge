@@ -1,0 +1,4 @@
+{
+  "httpMethod": "POST",
+  "body": "{\"entry\":[{\"changes\":[{\"value\":{\"messages\":[{\"from\":\"911234567890\",\"type\":\"location\",\"location\":{\"latitude\":11.94,\"longitude\":79.81}}]}}]}]}"
+}

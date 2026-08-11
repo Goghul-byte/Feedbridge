@@ -1,0 +1,4 @@
+{
+  "httpMethod": "POST",
+  "body": "{\"entry\":[{\"changes\":[{\"value\":{\"messages\":[{\"from\":\"911234567890\",\"type\":\"text\",\"text\":{\"body\":\"50kg Biryani\"}}]}}]}]}"
+}

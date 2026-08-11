@@ -1,0 +1,12 @@
+[
+  {"dish_name": "biryani", "aliases": ["biriyani", "briyani"], "category": "meat_seafood", "confidence_score": 10, "times_confirmed": 10, "created_by": "seed"},
+  {"dish_name": "chicken curry", "aliases": ["chicken gravy"], "category": "gravy_curry", "confidence_score": 10, "times_confirmed": 10, "created_by": "seed"},
+  {"dish_name": "paneer gravy", "aliases": ["paneer curry"], "category": "gravy_curry", "confidence_score": 10, "times_confirmed": 10, "created_by": "seed"},
+  {"dish_name": "roti", "aliases": ["chapati", "phulka"], "category": "dry_fried", "confidence_score": 10, "times_confirmed": 10, "created_by": "seed"},
+  {"dish_name": "fried rice", "aliases": [], "category": "dry_fried", "confidence_score": 10, "times_confirmed": 10, "created_by": "seed"},
+  {"dish_name": "fish fry", "aliases": ["fish curry"], "category": "meat_seafood", "confidence_score": 10, "times_confirmed": 10, "created_by": "seed"},
+  {"dish_name": "sambar", "aliases": [], "category": "gravy_curry", "confidence_score": 10, "times_confirmed": 10, "created_by": "seed"},
+  {"dish_name": "idli", "aliases": [], "category": "dry_fried", "confidence_score": 10, "times_confirmed": 10, "created_by": "seed"},
+  {"dish_name": "dosa", "aliases": [], "category": "dry_fried", "confidence_score": 10, "times_confirmed": 10, "created_by": "seed"},
+  {"dish_name": "mutton curry", "aliases": ["mutton gravy"], "category": "meat_seafood", "confidence_score": 10, "times_confirmed": 10, "created_by": "seed"}
+]

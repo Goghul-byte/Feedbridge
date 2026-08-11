@@ -1,0 +1,136 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: FeedBridge - WhatsApp-native food rescue platform (AWS Zero Hunger Hackathon)
+
+# Two params keep secrets out of the code - fill these in when you deploy
+Parameters:
+  WhatsAppToken:
+    Type: String
+    NoEcho: true
+    Description: Permanent access token from Meta WhatsApp Cloud API
+  WhatsAppPhoneNumberId:
+    Type: String
+    Description: Phone number ID from Meta WhatsApp Business dashboard
+  WhatsAppVerifyToken:
+    Type: String
+    NoEcho: true
+    Description: Any random string you choose - used to verify the webhook with Meta
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 15
+    MemorySize: 256
+    Environment:
+      Variables:
+        DONATIONS_TABLE: !Ref DonationsTable
+        NGOS_TABLE: !Ref NgosTable
+        RESTAURANTS_TABLE: !Ref RestaurantsTable
+        DISH_DICTIONARY_TABLE: !Ref DishDictionaryTable
+        CONVERSATION_STATE_TABLE: !Ref ConversationStateTable
+        WHATSAPP_TOKEN: !Ref WhatsAppToken
+        WHATSAPP_PHONE_NUMBER_ID: !Ref WhatsAppPhoneNumberId
+        WHATSAPP_VERIFY_TOKEN: !Ref WhatsAppVerifyToken
+
+Resources:
+
+  # ---------- API Gateway ----------
+  FeedBridgeApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+
+  # ---------- Lambda: receives every inbound WhatsApp message/button tap ----------
+  WebhookFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers.webhook_handler.lambda_handler
+      CodeUri: src/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DonationsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NgosTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RestaurantsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DishDictionaryTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ConversationStateTable
+      Events:
+        WebhookGet:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FeedBridgeApi
+            Path: /webhook
+            Method: GET
+        WebhookPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FeedBridgeApi
+            Path: /webhook
+            Method: POST
+
+  # ---------- Lambda: runs every minute, checks accept-timers and safe-window deadlines ----------
+  EscalationCheckerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers.escalation_checker.lambda_handler
+      CodeUri: src/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DonationsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NgosTable
+      Events:
+        EveryMinute:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 minute)
+
+  # ---------- DynamoDB Tables ----------
+  DonationsTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: feedbridge-donations
+      PrimaryKey:
+        Name: donation_id
+        Type: String
+
+  NgosTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: feedbridge-ngos
+      PrimaryKey:
+        Name: ngo_id
+        Type: String
+
+  RestaurantsTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: feedbridge-restaurants
+      PrimaryKey:
+        Name: restaurant_id
+        Type: String
+
+  DishDictionaryTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: feedbridge-dish-dictionary
+      PrimaryKey:
+        Name: dish_name
+        Type: String
+
+  # keyed by WhatsApp phone number - tracks "what step is this chat on"
+  ConversationStateTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: feedbridge-conversation-state
+      PrimaryKey:
+        Name: phone_number
+        Type: String
+
+Outputs:
+  WebhookUrl:
+    Description: Paste this into Meta's WhatsApp webhook config, with /webhook appended
+    Value: !Sub "https://${FeedBridgeApi}.execute-api.${AWS::Region}.amazonaws.com/prod/webhook"
